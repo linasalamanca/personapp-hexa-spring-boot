@@ -4,19 +4,23 @@ services:
   rest-service:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  # Ruta al Dockerfile multietapa
     ports:
       - "8080:8080"
     depends_on:
       - mongo-db
       - maria-db
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-db:27017/personapp
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-db:27017/persona_db
       SPRING_DATASOURCE_URL: jdbc:mariadb://maria-db:3306/personapp
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: example
       APP_DEBUG_LEVEL: INFO
-    restart: on-failure
+    networks:
+      - app_network
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./entrypoint.sh:/entrypoint.sh
 
   # Servicio MongoDB
   mongo-db:
@@ -24,7 +28,15 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: personapp
+      MONGO_INITDB_DATABASE: persona_db
+      MONGO_INITDB_ROOT_USERNAME: persona_db
+      MONGO_INITDB_ROOT_PASSWORD: persona_db
+    volumes:
+      - mongo_data:/data/db
+      - ./persona_ddl_mongo.js:/docker-entrypoint-initdb.d/persona_ddl_mongo.js:ro
+      - ./persona_dml_mongo.js:/docker-entrypoint-initdb.d/persona_dml_mongo.js:ro
+    networks:
+      - app_network
 
   # Servicio MariaDB
   maria-db:
@@ -34,8 +46,17 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: personapp
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    volumes:
+      - maria_data:/var/lib/mysql
+      - ./persona_ddl_maria.sql:/docker-entrypoint-initdb.d/persona_ddl_maria.sql
+      - ./persona_dml_maria.sql:/docker-entrypoint-initdb.d/persona_dml_maria.sql
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  maria_data:

@@ -16,7 +16,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<revision>0.0.1-SNAPSHOT</revision>
-		<global.java.version>11</global.java.version>
+		<global.java.version>17</global.java.version>
 		<global.springframework.boot.version>2.7.11</global.springframework.boot.version>
 		<global.springframework.version>5.3.27</global.springframework.version>
 	</properties>
@@ -36,7 +36,7 @@
 	</developers>
 	<modules>
 		<module>common</module>
-		<module>domain</module>
+		<module>domain</module>	
 		<module>application</module>
 		<module>maria-output-adapter</module>
 		<module>mongo-output-adapter</module>
@@ -56,4 +56,5 @@
 			<version>2.20.0</version>
 		</dependency>
 	</dependencies>
+	
 </project>

@@ -5,21 +5,18 @@ services:
       context: .
       dockerfile: Dockerfile  # Ruta al Dockerfile multietapa
     ports:
-      - "8080:8080"
+      - "8080:8080"  # Cambia el mapeo del puerto al definido en `application.properties`
     depends_on:
       - mongo-db
       - maria-db
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-db:27017/persona_db
+      SPRING_DATA_MONGODB_URI: mongodb://persona_db:persona_db@mongo-db:27017/persona_db
       SPRING_DATASOURCE_URL: jdbc:mariadb://maria-db:3306/personapp
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: example
       APP_DEBUG_LEVEL: INFO
     networks:
       - app_network
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./entrypoint.sh:/entrypoint.sh
 
   # Servicio MongoDB
   mongo-db:
@@ -27,9 +24,9 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: persona_db
       MONGO_INITDB_ROOT_USERNAME: persona_db
       MONGO_INITDB_ROOT_PASSWORD: persona_db
+      MONGO_INITDB_DATABASE: persona_db
     volumes:
       - mongo_data:/data/db
       - ./persona_ddl_mongo.js:/docker-entrypoint-initdb.d/persona_ddl_mongo.js:ro
@@ -41,14 +38,14 @@ services:
   maria-db:
     image: mariadb:latest
     ports:
-      - "3307:3306"  # Mapear el puerto del contenedor (3306) al puerto del host (3307)
+      - "3306:3306"  # Mapea el puerto para que coincida con el puerto esperado en `application.properties`
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: personapp
     volumes:
       - maria_data:/var/lib/mysql
-      - ./persona_ddl_maria.sql:/docker-entrypoint-initdb.d/persona_ddl_maria.sql
-      - ./persona_dml_maria.sql:/docker-entrypoint-initdb.d/persona_dml_maria.sql
+      - ./persona_ddl_maria.sql:/docker-entrypoint-initdb.d/persona_ddl_maria.sql:ro  # Asegúrate que este archivo esté en formato SQL válido
+      - ./persona_dml_maria.sql:/docker-entrypoint-initdb.d/persona_dml_maria.sql:ro
     networks:
       - app_network
 

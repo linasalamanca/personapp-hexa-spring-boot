@@ -25,7 +25,6 @@ COPY mongo-output-adapter/src mongo-output-adapter/src
 COPY rest-input-adapter/src rest-input-adapter/src
 COPY cli-input-adapter/src cli-input-adapter/src
 # Compilamos el proyecto completo
-RUN mvn clean
 RUN mvn install -DskipTests
 
 
